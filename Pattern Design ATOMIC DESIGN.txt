@@ -1,0 +1,174 @@
+Pattern Design: ATOMIC DESIGN
+
+
+I.	STRUCTURE (REACT NATIVE)
+
+src/
+├── components/
+│   ├── atoms/
+│   │   ├── Button/
+│   │   │   └── Button.tsx
+│   │   ├── Text/
+│   │   │   └── Text.tsx
+│   │   └── Input/
+│   │       └── Input.tsx
+│   │
+│   ├── molecules/
+│   │   ├── ExpenseItem/
+│   │   │   └── ExpenseItem.tsx
+│   │   └── BalanceRow/
+│   │       └── BalanceRow.tsx
+│   │
+│   ├── organisms/
+│   │   ├── ExpenseList/
+│   │   │   └── ExpenseList.tsx
+│   │   ├── BalanceSummary/
+│   │   │   └── BalanceSummary.tsx
+│   │   └── GroupList/
+│   │       └── GroupList.tsx
+│   │
+│   ├── templates/
+│   │   ├── GroupListTemplate.tsx
+│   │   ├── GroupDetailTemplate.tsx
+│   │   └── AddExpenseTemplate.tsx
+│   │
+│   └── screens/
+│       ├── GroupListScreen.tsx
+│       ├── GroupDetailScreen.tsx
+│       └── AddExpenseScreen.tsx
+│
+	│
+├── viewmodels/
+│   ├── useGroupList.ts
+│   ├── useGroupDetail.ts
+│   └── useAddExpense.ts
+│
+├── services/
+│   ├── api/
+│   │   ├── client.ts
+│   │   ├── group.api.ts
+│   │   └── expense.api.ts
+│   │
+│   └── store/
+│       ├── group.store.ts
+│       └── expense.store.ts
+│
+├── domain/
+│   ├── models/
+│   │   ├── Group.ts
+│   │   ├── Expense.ts
+│   │   └── User.ts
+│   │
+│   └── logic/
+│       ├── splitExpense.ts
+│       ├── calculateBalance.ts
+│       └── formatCurrency.ts
+│
+├── constants/
+│   └── currency.ts
+│
+└── navigation/
+    ├── AppNavigator.tsx
+    └── GroupNavigator.tsx
+
+
+________________________________________
+
+
+
+
+
+II.	MÔ TẢ CHI TIẾT
+src/
+Thư mục gốc chứa toàn bộ mã nguồn của ứng dụng React Native.
+ Cấu trúc được thiết kế theo components Design kết hợp MVVM và Domain-driven, nhằm đảm bảo dễ đọc, dễ mở rộng và dễ bảo trì.
+________________________________________
+components/
+Chứa toàn bộ các thành phần giao diện người dùng (UI) của ứng dụng, được tổ chức theo mô hình components Design.
+ Các thành phần trong thư mục này không xử lý nghiệp vụ và không giao tiếp trực tiếp với backend.
+components/atoms/
+Chứa các component UI nhỏ nhất, không thể tách nhỏ hơn.
+ Các component này chỉ nhận props và render giao diện, không chứa logic nghiệp vụ.
+Ví dụ: Button, Text, Input.
+________________________________________
+components/molecules/
+Chứa các component được kết hợp từ nhiều atoms.
+ Các component này có ý nghĩa rõ ràng hơn về mặt giao diện nhưng vẫn không xử lý nghiệp vụ.
+Ví dụ: ExpenseItem, BalanceRow.
+________________________________________
+components/organisms/
+Chứa các khối giao diện hoàn chỉnh, được sử dụng trực tiếp trong các màn hình.
+ Các component này nhận dữ liệu đã được xử lý từ bên ngoài và chỉ chịu trách nhiệm hiển thị.
+Ví dụ: ExpenseList, BalanceSummary, GroupList.
+________________________________________
+components/templates/
+Chứa các layout cho từng màn hình.
+ Template có nhiệm vụ sắp xếp các organisms thành bố cục hoàn chỉnh, không chứa logic nghiệp vụ và không xử lý điều hướng.
+Ví dụ: GroupListTemplate, GroupDetailTemplate.
+________________________________________
+components/screens/
+Chứa các màn hình của ứng dụng, gắn trực tiếp với hệ thống điều hướng.
+ Screen chỉ gọi ViewModel, nhận dữ liệu và truyền xuống Template để render.
+Screen không gọi API trực tiếp và không xử lý logic nghiệp vụ phức tạp.
+________________________________________
+viewmodels/
+Chứa các custom hook đóng vai trò ViewModel theo mô hình MVVM.
+ Các hook này xử lý logic của màn hình, bao gồm:
+•	Giao tiếp với store
+
+
+•	Gọi service API
+
+
+•	Chuẩn bị dữ liệu cho UI
+
+
+Mỗi screen tương ứng với một ViewModel.
+________________________________________
+services/
+Chứa tầng service, chịu trách nhiệm truy cập và quản lý dữ liệu.
+ Tầng này hoàn toàn độc lập với giao diện người dùng.
+services/api/
+Chứa các module giao tiếp với backend.
+ Mỗi file tương ứng với một resource, chỉ bao gồm các hàm gọi API và cấu hình client.
+Không xử lý state, không xử lý nghiệp vụ.
+________________________________________
+services/store/
+Chứa global state management của ứng dụng (ví dụ: Zustand).
+ Store lưu trữ dữ liệu dùng chung, hỗ trợ cập nhật tức thì và mô hình offline-first.
+Store không format dữ liệu hiển thị và không chứa logic UI.
+________________________________________
+domain/
+Chứa phần lõi nghiệp vụ của ứng dụng.
+ Các module trong domain không phụ thuộc React Native và có thể kiểm thử độc lập.
+domain/models/
+Chứa các định nghĩa dữ liệu (interface, type, entity).
+ Các model được dùng thống nhất giữa API, store và UI để đảm bảo type-safe.
+________________________________________
+domain/logic/
+Chứa các logic nghiệp vụ thuần như tính toán, xử lý chia tiền, định dạng dữ liệu.
+ Các hàm trong thư mục này không sử dụng React, không gọi API và không quản lý state.
+________________________________________
+constants/
+Chứa các hằng số và cấu hình cố định của ứng dụng.
+ Mục đích là tránh hardcode các giá trị lặp lại trong codebase.
+Ví dụ: currency, enum, static config.
+________________________________________
+navigation/
+Chứa cấu hình điều hướng của ứng dụng.
+ Quản lý các stack, tab và mapping giữa route và screen.
+Thư mục này không chứa business logic và không xử lý dữ liệu.
+________________________________________
+
+
+III.	TỔNG KẾT
+
+
+•	UI, logic và nghiệp vụ được tách biệt rõ ràng
+
+
+•	Dễ mở rộng khi ứng dụng phát triển lớn
+
+
+•	Nhiều lập trình viên có thể làm việc song song mà không xung đột
+
