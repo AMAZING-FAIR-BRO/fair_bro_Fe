@@ -18,3 +18,27 @@ apiClient.interceptors.request.use((config: any) => {
   }
   return config;
 });
+
+// Response interceptor: unwrap envelope { code, message, data } -> return data
+apiClient.interceptors.response.use(
+  (response) => {
+    const body = response?.data;
+    if (body && typeof body === "object") {
+      if (Object.prototype.hasOwnProperty.call(body, "data")) {
+        return body.data;
+      }
+      return body;
+    }
+    return body;
+  },
+  (error) => {
+    const resp = error?.response?.data;
+    let message = error?.message ?? "Request failed";
+    if (resp && typeof resp === "object") {
+      if (resp.message) message = resp.message;
+      if (resp.data && resp.data.message) message = resp.data.message;
+    }
+    error.message = message;
+    return Promise.reject(error);
+  }
+);

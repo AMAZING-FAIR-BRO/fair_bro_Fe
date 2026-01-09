@@ -14,11 +14,17 @@ export type AuthResponse = {
 export const authApi = {
   login: async (payload: LoginPayload): Promise<AuthResponse> => {
     const res = await apiClient.post("/auth/login", payload);
-    return res.data;
+    return res as AuthResponse;
   },
 
   register: async (payload: LoginPayload): Promise<AuthResponse> => {
     const res = await apiClient.post("/auth/register", payload);
-    return res.data;
+    return res as AuthResponse;
+  },
+
+  // Google login: backend may accept an id_token or full profile
+  googleLogin: async (payload: any): Promise<AuthResponse> => {
+    const res = await apiClient.post("/auth/google", payload);
+    return res as AuthResponse;
   },
 };

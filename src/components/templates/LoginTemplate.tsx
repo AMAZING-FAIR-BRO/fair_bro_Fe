@@ -10,14 +10,24 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // ✅ ĐÚNG
 
+type LoginResult = { success: boolean; message?: string };
+
 type Props = {
-  onLogin: () => void;
+  onLogin: (account: string, password: string) => Promise<LoginResult>;
   onGoSignUp: () => void;
+  onGoogleSignIn?: () => void | Promise<void>;
 };
 
-export default function LoginTemplate({ onLogin, onGoSignUp }: Props) {
-  const [accountSecure, setAccountSecure] = useState(true);
+export default function LoginTemplate({
+  onLogin,
+  onGoSignUp,
+  onGoogleSignIn,
+}: Props) {
   const [passwordSecure, setPasswordSecure] = useState(true);
+  const [account, setAccount] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -43,23 +53,22 @@ export default function LoginTemplate({ onLogin, onGoSignUp }: Props) {
         <Text style={styles.label}>Email hoặc tên người dùng</Text>
         <View style={styles.inputWrapper}>
           <TextInput
+            value={account}
+            onChangeText={setAccount}
             placeholder="user@example.com"
             placeholderTextColor="#93adc8"
-            secureTextEntry={accountSecure}
             style={styles.input}
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
-          <TouchableOpacity onPress={() => setAccountSecure((s) => !s)}>
-            <Ionicons
-              name={accountSecure ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color="#93adc8"
-            />
-          </TouchableOpacity>
+          <Ionicons name="person-outline" size={20} color="#93adc8" />
         </View>
 
         <Text style={styles.label}>Mật khẩu</Text>
         <View style={styles.inputWrapper}>
           <TextInput
+            value={password}
+            onChangeText={setPassword}
             placeholder="••••••••"
             placeholderTextColor="#93adc8"
             secureTextEntry={passwordSecure}
@@ -74,12 +83,57 @@ export default function LoginTemplate({ onLogin, onGoSignUp }: Props) {
           </TouchableOpacity>
         </View>
 
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         <TouchableOpacity style={styles.forgot}>
           <Text style={styles.link}>Quên mật khẩu?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.loginBtn} onPress={onLogin}>
-          <Text style={styles.loginText}>Đăng nhập</Text>
+        <TouchableOpacity
+          style={[styles.loginBtn, loading && styles.loginBtnDisabled]}
+          onPress={async () => {
+            setError(undefined);
+            // require account field
+            if (!account || account.trim() === "") {
+              setError("Vui lòng nhập tài khoản");
+              return;
+            }
+            setLoading(true);
+            try {
+              const res = await onLogin(account, password);
+              if (!res.success) setError(res.message || "Đăng nhập thất bại");
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading}
+        >
+          <Text style={styles.loginText}>
+            {loading ? "Đang xử lý..." : "Đăng nhập"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.googleBtn}
+          onPress={async () => {
+            try {
+              setError(undefined);
+              setLoading(true);
+              if (typeof onGoogleSignIn === "function") {
+                await onGoogleSignIn();
+              }
+            } catch (err: any) {
+              setError(err?.message || "Đăng nhập Google thất bại");
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading}
+        >
+          <View style={styles.googleInner}>
+            <Ionicons name="logo-google" size={18} color="#de5246" />
+            <Text style={styles.googleText}>Đăng nhập bằng Google</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -100,6 +154,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f9ff",
+    justifyContent: "space-between",
   },
   header: {
     height: 140,
@@ -172,10 +227,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
+  loginBtnDisabled: {
+    opacity: 0.6,
+  },
   loginText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "700",
+  },
+  googleBtn: {
+    marginTop: 12,
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e6eef8",
+  },
+  googleInner: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  googleText: {
+    marginLeft: 8,
+    color: "#2b2b2b",
+    fontWeight: "600",
   },
   footer: {
     padding: 16,
@@ -185,5 +261,10 @@ const styles = StyleSheet.create({
   },
   footerText: {
     color: "#6e859b",
+  },
+  errorText: {
+    color: "#d9534f",
+    marginTop: 8,
+    marginBottom: 4,
   },
 });
