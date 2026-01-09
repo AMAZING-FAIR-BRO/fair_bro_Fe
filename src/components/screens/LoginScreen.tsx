@@ -1,14 +1,18 @@
-// src/components/screens/LoginScreen.tsx
 import React from "react";
 import LoginTemplate from "../templates/LoginTemplate";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useLogin } from "@/viewmodels/useLogin";
+import { useNavigation } from "@react-navigation/native";
 
-type Props = NativeStackScreenProps<any>;
+export default function LoginScreen() {
+  const { login } = useLogin();
+  const navigation = useNavigation<any>();
 
-export default function LoginScreen({ navigation }: Props) {
   return (
     <LoginTemplate
-      onLogin={() => navigation.replace("Main")}
+      onLogin={async () => {
+        await login("test@gmail.com", "123456");
+        navigation.replace("Main");
+      }}
       onGoSignUp={() => navigation.navigate("SignUp")}
     />
   );

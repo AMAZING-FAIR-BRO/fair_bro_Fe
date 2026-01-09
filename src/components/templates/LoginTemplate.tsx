@@ -1,5 +1,5 @@
 // src/components/templates/LoginTemplate.tsx
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ type Props = {
 };
 
 export default function LoginTemplate({ onLogin, onGoSignUp }: Props) {
+  const [accountSecure, setAccountSecure] = useState(true);
+  const [passwordSecure, setPasswordSecure] = useState(true);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -43,9 +45,16 @@ export default function LoginTemplate({ onLogin, onGoSignUp }: Props) {
           <TextInput
             placeholder="user@example.com"
             placeholderTextColor="#93adc8"
+            secureTextEntry={accountSecure}
             style={styles.input}
           />
-          <Ionicons name="person-outline" size={20} color="#93adc8" />
+          <TouchableOpacity onPress={() => setAccountSecure((s) => !s)}>
+            <Ionicons
+              name={accountSecure ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="#93adc8"
+            />
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.label}>Mật khẩu</Text>
@@ -53,10 +62,16 @@ export default function LoginTemplate({ onLogin, onGoSignUp }: Props) {
           <TextInput
             placeholder="••••••••"
             placeholderTextColor="#93adc8"
-            secureTextEntry
+            secureTextEntry={passwordSecure}
             style={styles.input}
           />
-          <Ionicons name="eye-off-outline" size={20} color="#93adc8" />
+          <TouchableOpacity onPress={() => setPasswordSecure((s) => !s)}>
+            <Ionicons
+              name={passwordSecure ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="#93adc8"
+            />
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.forgot}>

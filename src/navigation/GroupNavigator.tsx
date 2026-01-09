@@ -1,9 +1,10 @@
+// src/navigation/GroupNavigator.tsx
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
-import GroupListScreen from "@/components/screens/GroupListScreen";
+import GroupsStackNavigator from "./GroupsStackNavigator";
 import GroupDetailScreen from "@/components/screens/GroupDetailScreen";
 import AddExpenseScreen from "@/components/screens/AddExpenseScreen";
 
@@ -14,7 +15,7 @@ const INACTIVE = "#94A3B8";
 
 type FabButtonProps = {
   children: React.ReactNode;
-  onPress?: () => void;
+  onPress?: (event?: any) => void;
 };
 
 function FabButton({ children, onPress }: FabButtonProps) {
@@ -40,8 +41,8 @@ export default function GroupNavigator() {
     >
       {/* Nhóm */}
       <Tab.Screen
-        name="Groups"
-        component={GroupListScreen}
+        name="GroupsTab"
+        component={GroupsStackNavigator}
         options={{
           tabBarLabel: "Nhóm",
           tabBarIcon: ({ focused, size }) => (
@@ -118,32 +119,28 @@ export default function GroupNavigator() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 80,
-    paddingTop: 6,
-    paddingBottom: 10,
-    borderTopWidth: 0.5,
-    borderTopColor: "#E5E7EB",
+    height: 64,
+    backgroundColor: "#fff",
+    borderTopWidth: 0,
+    elevation: 8,
   },
   label: {
-    fontSize: 10,
-    fontWeight: "500",
+    fontSize: 12,
+    marginBottom: 6,
   },
   fabWrapper: {
-    top: -26,
-    alignItems: "center",
+    top: -28,
     justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
   },
   fab: {
     width: 56,
     height: 56,
     borderRadius: 28,
     backgroundColor: PRIMARY,
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
     elevation: 6,
-    shadowColor: PRIMARY,
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 4 },
   },
 });
